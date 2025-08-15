@@ -1,0 +1,72 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowSecretsManagerAccess",
+			"Effect": "Allow",
+			"Action": [
+				"secretsmanager:GetSecretValue",
+				"secretsmanager:DescribeSecret"
+			],
+			"Resource": [
+				"arn:aws:secretsmanager:<aws-region>:<aws-account-id>:secret:redshift!<workgroup>-<user>-<identifier>*",
+				"arn:aws:secretsmanager:<aws-region>:<aws-account-id>:secret:redshift!<cluster-identifer>-<user>-<identifier>*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"sagemaker:UserProfileName": "<your-user-profile-name>"
+				}
+			}
+		},
+		{
+			"Sid": "AllowRedshiftDescribe",
+			"Effect": "Allow",
+			"Action": [
+				"redshift:DescribeClusters",
+				"redshift-serverless:GetNamespace",
+				"redshift-serverless:GetWorkgroup"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"sagemaker:UserProfileName": "<your-user-profile-name>"
+				}
+			}
+		},
+		{
+			"Sid": "AllowUserAccess",
+			"Effect": "Allow",
+			"Action": [
+				"redshift:GetClusterCredentials",
+				"redshift-data:ExecuteStatement",
+				"redshift-data:GetStatementResult",
+				"redshift-data:DescribeStatement",
+				"redshift-data:ListStatements",
+				"redshift-data:CancelStatement"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"sagemaker:UserProfileName": "<your-user-profile-name>",
+					"redshift:DbName": "<your-database-name>"
+				}
+			}
+		},
+		{
+			"Sid": "DenyAllOtherAccess",
+			"Effect": "Deny",
+			"Action": [
+				"secretsmanager:GetSecretValue",
+				"redshift:*",
+				"redshift-data:*",
+				"redshift-serverless:*"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringNotEquals": {
+					"sagemaker:UserProfileName": "<your-user-profile-name>"
+				}
+			}
+		}
+	]
+}
